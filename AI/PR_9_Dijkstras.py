@@ -1,4 +1,4 @@
-# Simple Dijkstra's Algorithm
+# Dijkstra Algorithm with Source and Destination
 
 graph = {
     'A': {'B': 4, 'C': 2},
@@ -10,23 +10,26 @@ graph = {
 }
 
 
-def dijkstra(graph, start):
+def dijkstra(graph, start, goal):
 
-    # Store shortest distances
+    # Store shortest distance
     distance = {}
 
-    # Mark visited nodes
+    # Store previous node
+    parent = {}
+
     visited = []
 
-    # Initialize distances
+    # Initialize
     for node in graph:
         distance[node] = float('inf')
+        parent[node] = None
 
     distance[start] = 0
 
     while len(visited) < len(graph):
 
-        # Find node with minimum distance
+        # Find minimum distance node
         min_node = None
 
         for node in graph:
@@ -39,7 +42,6 @@ def dijkstra(graph, start):
                 elif distance[node] < distance[min_node]:
                     min_node = node
 
-        # Visit node
         visited.append(min_node)
 
         # Update neighbors
@@ -50,15 +52,28 @@ def dijkstra(graph, start):
                 new_distance = distance[min_node] + weight
 
                 if new_distance < distance[neighbor]:
+
                     distance[neighbor] = new_distance
+                    parent[neighbor] = min_node
 
-    return distance
+    # Build shortest path
+    path = []
+
+    current = goal
+
+    while current is not None:
+
+        path.append(current)
+        current = parent[current]
+
+    path.reverse()
+
+    print("Shortest Distance =", distance[goal])
+    print("Shortest Path =", path)
 
 
-# Run algorithm
-result = dijkstra(graph, 'A')
+# Source and Destination
+src = 'A'
+dest = 'F'
 
-print("Shortest Distances from A:\n")
-
-for node, dist in result.items():
-    print(node, "=", dist)
+dijkstra(graph, src, dest)
