@@ -1,86 +1,81 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
 struct Edge {
-  int u, v, weight;
+  int source;
+  int destination;
+  int cost;
 };
 
-class DSU {
-  vector<int> parent, rank;
+bool compare(Edge a, Edge b) { return a.cost < b.cost; }
 
-public:
-  DSU(int n) {
-    parent.resize(n);
-    rank.resize(n);
-    for (int i = 0; i < n; i++) {
-      parent[i] = i;
-      rank[i] = 0;
-    }
+int parent[100];
+
+int findParent(int x) {
+  if (parent[x] == x) {
+    return x;
   }
+  return findParent(parent[x]);
+}
 
-  int find(int x) {
-    if (parent[x] != x)
-      parent[x] = find(parent[x]);
-    return parent[x];
-  }
+void unionSet(int a, int b) {
+  int pa = findParent(a);
+  int pb = findParent(b);
 
-  void unite(int x, int y) {
-    int px = find(x);
-    int py = find(y);
-
-    if (px == py)
-      return;
-
-    if (rank[px] < rank[py])
-      parent[px] = py;
-    else if (rank[px] > rank[py])
-      parent[py] = px;
-    else {
-      parent[py] = px;
-      rank[px]++;
-    }
-  }
-};
-
-bool cmp(Edge a, Edge b) { return a.weight < b.weight; }
+  parent[pa] = pb;
+}
 
 int main() {
-  int V, E;
+
+  int vertices, edges;
+
   cout << "Enter number of villages: ";
-  cin >> V;
+  cin >> vertices;
 
   cout << "Enter number of pipes: ";
-  cin >> E;
+  cin >> edges;
 
-  vector<Edge> edges(E);
+  vector<Edge> graph(edges);
 
-  cout << "Enter edges (u v cost):\n";
-  for (int i = 0; i < E; i++) {
-    cin >> edges[i].u >> edges[i].v >> edges[i].weight;
+  cout << "Enter source destination and cost:\n";
+
+  for (int i = 0; i < edges; i++) {
+
+    cin >> graph[i].source;
+    cin >> graph[i].destination;
+    cin >> graph[i].cost;
   }
 
-  sort(edges.begin(), edges.end(), cmp);
+  for (int i = 0; i < vertices; i++) {
+    parent[i] = i;
+  }
 
-  DSU dsu(V);
+  sort(graph.begin(), graph.end(), compare);
 
-  int totalCost = 0;
+  int minimumCost = 0;
 
-  cout << "\nMinimum Cost Pipe Network:\n";
+  cout << "\nMinimum Spanning Tree:\n";
 
-  for (int i = 0; i < edges.size(); i++) {
-    Edge edge = edges[i];
+  for (int i = 0; i < edges; i++) {
 
-    if (dsu.find(edge.u) != dsu.find(edge.v)) {
-      cout << edge.u << " -- " << edge.v << "  Cost: " << edge.weight << endl;
+    int u = graph[i].source;
+    int v = graph[i].destination;
+    int w = graph[i].cost;
 
-      totalCost += edge.weight;
-      dsu.unite(edge.u, edge.v);
+    if (findParent(u) != findParent(v)) {
+
+      cout << u << " - " << v << " : " << w << endl;
+
+      minimumCost = minimumCost + w;
+
+      unionSet(u, v);
     }
   }
 
-  cout << "\nTotal Minimum Cost: " << totalCost << endl;
+  cout << "\nTotal Minimum Cost = " << minimumCost;
 
   return 0;
 }
